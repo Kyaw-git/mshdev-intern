@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+    // url      = env("DATABASE_URL")
+}
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ProductStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  category    String
+  brand       String?
+  gender      Gender   @default(OTHER)
+  price       Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  variants ProductVariant[]
+  images   ProductImage[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id        String        @id @default(cuid())
+  productId String        @map("product_id")
+  size      String
+  color     String
+  stock     Int           @default(0)
+  status    ProductStatus @default(IN_STOCK)
+
+  // Relationship back to Product
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id        String @id @default(cuid())
+  productId String @map("product_id")
+  imageUrl  String @map("image_url")
+
+  // Relationship back to Product
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
