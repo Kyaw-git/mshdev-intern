@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-// အရေးကြီးသည်- @prisma/client အစား generated ထဲက ကောင်ကို လှမ်းယူရပါမည်
-import { PrismaClient } from '../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as pg from 'pg';
 
