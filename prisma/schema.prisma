@@ -1,15 +1,20 @@
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
 }
 
 datasource db {
   provider = "postgresql"
-    // url      = env("DATABASE_URL")
 }
 enum Gender {
   MALE
   FEMALE
-  OTHER
+  UNISEX
 }
 
 enum ProductStatus {
@@ -41,12 +46,11 @@ model Product {
   description String?  @db.Text
   category    String
   brand       String?
-  gender      Gender   @default(OTHER)
+  gender      Gender   @default(UNISEX)
   price       Decimal  @db.Decimal(10, 2)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  // Relationships
   variants ProductVariant[]
   images   ProductImage[]
 
@@ -61,7 +65,6 @@ model ProductVariant {
   stock     Int           @default(0)
   status    ProductStatus @default(IN_STOCK)
 
-  // Relationship back to Product
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("product_variants")
@@ -72,7 +75,6 @@ model ProductImage {
   productId String @map("product_id")
   imageUrl  String @map("image_url")
 
-  // Relationship back to Product
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("product_images")

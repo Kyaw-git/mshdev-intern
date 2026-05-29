@@ -1,0 +1,65 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table users {
+  id String [pk]
+  email String [unique, not null]
+  password String [not null]
+  name String
+  role Role [not null, default: 'USER']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table products {
+  id String [pk]
+  name String [not null]
+  description String
+  category String [not null]
+  brand String
+  gender Gender [not null, default: 'UNISEX']
+  price Decimal [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  variants product_variants [not null]
+  images product_images [not null]
+}
+
+Table product_variants {
+  id String [pk]
+  productId String [not null]
+  size String [not null]
+  color String [not null]
+  stock Int [not null, default: 0]
+  status ProductStatus [not null, default: 'IN_STOCK']
+  product products [not null]
+}
+
+Table product_images {
+  id String [pk]
+  productId String [not null]
+  imageUrl String [not null]
+  product products [not null]
+}
+
+Enum Gender {
+  MALE
+  FEMALE
+  UNISEX
+}
+
+Enum ProductStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+Enum Role {
+  USER
+  ADMIN
+}
+
+Ref: product_variants.productId > products.id [delete: Cascade]
+
+Ref: product_images.productId > products.id [delete: Cascade]
