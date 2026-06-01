@@ -95,4 +95,28 @@ export class PrismaProductRepository implements ProductRepository {
     });
     return record ? this.toDomain(record) : null;
   }
+
+  async delete(id: string, tx?: Prisma.TransactionClient): Promise<void> {
+    const client = tx || this.prisma;
+    await (client as any).product.delete({
+      where: { id },
+    });
+  }
+
+  async update(id: string, data: any, tx?: Prisma.TransactionClient): Promise<any> {
+    const client = tx || this.prisma;
+    return await (client as any).product.update({
+      where: { id },
+      data: {
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        brand: data.brand,
+        gender: data.gender,
+        price: data.price,
+      },
+    });
+  }
+
+  
 }

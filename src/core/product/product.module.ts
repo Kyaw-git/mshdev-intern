@@ -5,6 +5,8 @@ import { ProductRepository } from './domain/repositories/product.repository';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { PrismaProductRepository } from './infrastructure/prisma-product.repository';
 import { FindAllProductsUseCase } from './application/use-case/find-all-products.usecase';
+import { DeleteProductUseCase } from './application/use-case/delete-product.usecase';
+import { UpdateProductUseCase } from './application/use-case/update-product.usecase';
 
 @Module({
   imports: [PrismaModule],
@@ -12,6 +14,8 @@ import { FindAllProductsUseCase } from './application/use-case/find-all-products
   providers: [
     CreateProductUseCase,
     FindAllProductsUseCase,
+    DeleteProductUseCase,
+    UpdateProductUseCase,
     {
       provide: ProductRepository,
       useClass: PrismaProductRepository,
