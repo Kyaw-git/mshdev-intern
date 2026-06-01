@@ -22,8 +22,8 @@ Table products {
   price Decimal [not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
-  variants product_variants [not null]
   images product_images [not null]
+  variants product_variants [not null]
 }
 
 Table product_variants {

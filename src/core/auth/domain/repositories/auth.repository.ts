@@ -1,4 +1,4 @@
-import { Auth } from '../entities/auth.entity'; // သင့် Entity နာမည် Auth ဆိုလျှင် Auth ဟုသုံးပါ (User ဆိုလျှင် User ဟုပြင်ပါ)
+import { Auth } from '../entities/auth.entity';
 import { Prisma } from '@prisma/client';
 
 export interface AuthRepository {
