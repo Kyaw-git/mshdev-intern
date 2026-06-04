@@ -6,6 +6,8 @@ import { LoginUseCase } from '../application/use-case/login.usecase';
 import { RegisterDto } from '../application/dtos/register.dto';
 import { LoginDto } from '../application/dtos/login.dto';
 import { GetMeUseCase } from '../application/use-case/get-me.usecase';
+import { VerifyOtpUseCase } from '../application/use-case/verify-otp.usecase';
+import { VerifyOtpDto } from '../application/dtos/verify-otp.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -14,6 +16,7 @@ export class AuthController {
     private readonly registerUseCase: RegisterUseCase,
     private readonly loginUseCase: LoginUseCase,
   private readonly getMeUseCase: GetMeUseCase,
+  private readonly verifyOtpUseCase: VerifyOtpUseCase,
 
   ) {}
 
@@ -33,6 +36,17 @@ export class AuthController {
   async login(@Body() dto: LoginDto) {
     return this.loginUseCase.execute(dto);
   }
+
+  @Post('verify-otp')
+@HttpCode(HttpStatus.OK)
+@ApiOperation({ summary: 'Verify 6-digit OTP code' })
+@ApiResponse({ status: 200, description: 'OTP verified successfully. Pending admin approval.' })
+@ApiResponse({ status: 400, description: 'Invalid or expired OTP code.' })
+async verifyOtp(@Body() dto: VerifyOtpDto) {
+  return this.verifyOtpUseCase.execute(dto);
+}
+
+
 @Get("profile")
   @ApiBearerAuth("JWT-auth")
   async me(@Req() req: any, @Query('token') queryToken?: string) {

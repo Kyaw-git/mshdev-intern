@@ -1,51 +1,98 @@
-import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { LoginDto } from '../dtos/login.dto';
 import { AuthRepository } from '../../domain/repositories/auth.repository';
 import { HashService } from '../../../../modules/hash-service/hash.service';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../../../../prisma/prisma.service';
 
 @Injectable()
 export class LoginUseCase {
   constructor(
-    @Inject(AuthRepository)
-    private readonly authRepository: AuthRepository,
-
-    @Inject(HashService)
-    private readonly hashService: HashService,
+    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
 
   async execute(dto: LoginDto) {
-    const user = await this.authRepository.findByEmail(dto.email);
-    if (!user) {
-      throw new UnauthorizedException('invalid email or password');
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordMatch = await this.hashService.compare(
-      dto.password,
-      user.password,
-    );
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException('invalid email or password');
+    if (user.status === 'PENDING') {
+      throw new ForbiddenException(
+        'Your account is pending administrator approval.',
+      );
     }
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
-    const accessToken = this.jwtService.sign(payload);
+
+    if (user.status === 'REJECTED') {
+      throw new ForbiddenException(
+        'Your registration request has been rejected.',
+      );
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
-      message: 'login successful',
+      message: 'Login successful',
+      access_token: await this.jwtService.signAsync(payload),
       user: {
         id: user.id,
-        name: user.name,
         email: user.email,
+        name: user.name,
         role: user.role,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
+        status: user.status,
       },
-      access_token: accessToken,
     };
   }
 }
+
+// @Injectable()
+// export class LoginUseCase {
+//   constructor(
+//     private readonly prisma: PrismaService,
+//     private readonly jwtService: JwtService,
+//   ) {}
+
+//   async execute(dto: LoginDto) {
+//     const user = await this.prisma.user.findUnique({
+//       where: { email: dto.email },
+//     });
+
+//     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+//       throw new UnauthorizedException('Invalid credentials');
+//     }
+
+//     if (user.status === 'REJECTED') {
+//       throw new ForbiddenException(
+//         'Your registration request has been rejected by the administrator.',
+//       );
+//     }
+
+//     const payload = {
+//       sub: user.id,
+//       email: user.email,
+//       role: user.role,
+//       status: user.status,
+//     };
+
+//     return {
+//       message: 'Login successful',
+//       access_token: await this.jwtService.signAsync(payload),
+//       user: {
+//         id: user.id,
+//         email: user.email,
+//         name: user.name,
+//         role: user.role,
+//         status: user.status,
+//       },
+//     };
+//   }
+// }

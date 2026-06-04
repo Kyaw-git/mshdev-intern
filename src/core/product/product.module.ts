@@ -7,6 +7,7 @@ import { PrismaProductRepository } from './infrastructure/prisma-product.reposit
 import { FindAllProductsUseCase } from './application/use-case/find-all-products.usecase';
 import { DeleteProductUseCase } from './application/use-case/delete-product.usecase';
 import { UpdateProductUseCase } from './application/use-case/update-product.usecase';
+import { FindByIdProductUseCase } from './application/use-case/find-by-id-product.usecase';
 
 @Module({
   imports: [PrismaModule],
@@ -16,6 +17,7 @@ import { UpdateProductUseCase } from './application/use-case/update-product.usec
     FindAllProductsUseCase,
     DeleteProductUseCase,
     UpdateProductUseCase,
+    FindByIdProductUseCase,
     {
       provide: ProductRepository,
       useClass: PrismaProductRepository,

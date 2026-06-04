@@ -11,56 +11,6 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id         String   @id @default(cuid())
-  email      String   @unique
-  password   String
-  name       String?
-  role       Role     @default(USER)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@map("users")
-}
-
-model Product {
-  id          String           @id @default(cuid())
-  name        String
-  description String?
-  category    String
-  brand       String?
-  gender      Gender           @default(UNISEX)
-  price       Decimal          @db.Decimal(10, 2)
-  created_at  DateTime         @default(now())
-  updated_at  DateTime         @updatedAt
-  images      ProductImage[]
-  variants    ProductVariant[]
-
-  @@map("products")
-}
-
-model ProductVariant {
-  id         String        @id @default(cuid())
-  product_id String
-  size       String
-  color      String
-  stock      Int           @default(0)
-  status     ProductStatus @default(IN_STOCK)
-  product    Product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
-
-  @@map("product_variants")
-}
-
-model ProductImage {
-  id         String  @id @default(cuid())
-  product_id String  @map("product_id")
-  image_url  String  @map("image_url")
-  is_primary Boolean @default(false) @map("is_primary")
-  product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
-
-  @@map("product_images")
-}
-
 enum Gender {
   MALE
   FEMALE
@@ -76,4 +26,76 @@ enum ProductStatus {
 enum Role {
   USER
   ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id         String     @id @default(cuid())
+  email      String     @unique
+  phone_no   String     @unique @map("phone_no")
+  password   String
+  name       String?
+  avatar_url String?    @map("avatar_url")
+  status     UserStatus @default(PENDING)
+  role       Role       @default(USER)
+  created_at DateTime   @default(now()) @map("created_at")
+  updated_at DateTime   @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model OtpVerification {
+  id         String   @id @default(cuid())
+  email      String
+  code       String
+  expires_at DateTime @map("expires_at")
+  created_at DateTime @default(now()) @map("created_at")
+
+  @@map("otp_verifications")
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  brand       String?
+  gender      Gender           @default(UNISEX)
+  price       Decimal          @db.Decimal(10, 2)
+  created_at  DateTime         @default(now()) @map("created_at")
+  updated_at  DateTime         @updatedAt @map("updated_at")
+  images      ProductImage[]
+  variants    ProductVariant[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id         String        @id @default(cuid())
+  product_id String        @map("product_id")
+  color      String
+  stock      Int           @default(0)
+  status     ProductStatus @default(IN_STOCK)
+  product    Product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  created_at DateTime      @default(now()) @map("created_at")
+  updated_at DateTime      @updatedAt @map("updated_at")
+
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id         String   @id @default(cuid())
+  product_id String   @map("product_id")
+  image_url  String   @map("image_url")
+  is_primary Boolean  @default(false) @map("is_primary")
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now()) @map("created_at")
+  updated_at DateTime @updatedAt @map("updated_at")
+
+  @@map("product_images")
 }

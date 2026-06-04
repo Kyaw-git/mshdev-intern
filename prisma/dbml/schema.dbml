@@ -5,11 +5,22 @@
 Table users {
   id String [pk]
   email String [unique, not null]
+  phone_no String [unique, not null]
   password String [not null]
   name String
+  avatar_url String
+  status UserStatus [not null, default: 'PENDING']
   role Role [not null, default: 'USER']
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
+}
+
+Table otp_verifications {
+  id String [pk]
+  email String [not null]
+  code String [not null]
+  expires_at DateTime [not null]
+  created_at DateTime [default: `now()`, not null]
 }
 
 Table products {
@@ -29,11 +40,12 @@ Table products {
 Table product_variants {
   id String [pk]
   product_id String [not null]
-  size String [not null]
   color String [not null]
   stock Int [not null, default: 0]
   status ProductStatus [not null, default: 'IN_STOCK']
   product products [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
 }
 
 Table product_images {
@@ -42,6 +54,8 @@ Table product_images {
   image_url String [not null]
   is_primary Boolean [not null, default: false]
   product products [not null]
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
 }
 
 Enum Gender {
@@ -59,6 +73,12 @@ Enum ProductStatus {
 Enum Role {
   USER
   ADMIN
+}
+
+Enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 Ref: product_variants.product_id > products.id [delete: Cascade]

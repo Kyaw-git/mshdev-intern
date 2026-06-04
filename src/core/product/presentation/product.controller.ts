@@ -16,6 +16,7 @@ import { CreateProductDto } from '../application/dtos/create-product.dto';
 import { DeleteProductUseCase } from '../application/use-case/delete-product.usecase';
 import { UpdateProductUseCase } from '../application/use-case/update-product.usecase';
 import { UpdateProductDto } from '../application/dtos/update-product.dto';
+import { FindByIdProductUseCase } from '../application/use-case/find-by-id-product.usecase';
 
 @ApiTags('Products')
 @Controller('products')
@@ -25,6 +26,7 @@ export class ProductController {
     private readonly findAllProductsUseCase: FindAllProductsUseCase,
     private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
+    private readonly findByIdProductUseCase: FindByIdProductUseCase,
   ) {}
 
   @Post()
@@ -59,5 +61,15 @@ export class ProductController {
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.updateProductUseCase.execute(id, dto);
+  }
+
+
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a product by ID' })
+  @ApiResponse({ status: 200, description: 'Product retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Product not found.' })
+  async findById(@Param('id') id: string) {
+    return this.findByIdProductUseCase.execute(id);
   }
 }
