@@ -15,8 +15,11 @@ export class PrismaAuthRepository implements AuthRepository {
       email: record.email,
       password: record.password,
       role: record.role,
-      created_at: record.createdAt,
-      updated_at: record.updatedAt,
+      status: record.status,         
+      phone_no: record.phone_no,
+      avatar_url: record.avatar_url,
+      created_at: record.createdAt || record.created_at,
+      updated_at: record.updatedAt || record.updated_at,
     });
   }
 
@@ -40,12 +43,16 @@ export class PrismaAuthRepository implements AuthRepository {
     const data = user.toPrimitives();
     const client = tx || this.prisma; 
 
+
     const record = await (client as any).user.create({
       data: {
         name: data.name,
         email: data.email,
         password: data.password,
         role: data.role,
+        status: data.status,
+        phone_no: data.phone_no,
+        avatar_url: data.avatar_url,
       },
     });
 

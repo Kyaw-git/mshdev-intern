@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { GetMeUseCase } from './application/use-case/get-me.usecase';
 import { VerifyOtpUseCase } from './application/use-case/verify-otp.usecase';
 import { MailService } from '../mail/mail.service';
+import { GetAllUsersUseCase } from './application/use-case/get-all-users.usecase';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { MailService } from '../mail/mail.service';
     GetMeUseCase,
     VerifyOtpUseCase,
     MailService,
+    GetAllUsersUseCase,
     {
       provide: AuthRepository,
       useClass: PrismaAuthRepository,
