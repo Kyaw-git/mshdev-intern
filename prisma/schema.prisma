@@ -34,17 +34,25 @@ enum UserStatus {
   REJECTED
 }
 
+enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
 model User {
-  id         String     @id @default(cuid())
-  email      String     @unique
-  phone_no   String     @unique @map("phone_no")
+  id         String   @id @default(cuid())
+  email      String   @unique
+  phone_no   String   @unique @map("phone_no")
   password   String
   name       String?
-  avatar_url String?    @map("avatar_url")
+  avatar_url String?  @map("avatar_url")
   status     UserStatus @default(PENDING)
-  role       Role       @default(USER)
-  created_at DateTime   @default(now()) @map("created_at")
-  updated_at DateTime   @updatedAt @map("updated_at")
+  role       Role     @default(USER)
+  created_at DateTime @default(now()) @map("created_at")
+  updated_at DateTime @updatedAt @map("updated_at")
+  orders     Order[]
 
   @@map("users")
 }
@@ -79,11 +87,13 @@ model ProductVariant {
   id         String        @id @default(cuid())
   product_id String        @map("product_id")
   color      String
+  size       String
   stock      Int           @default(0)
   status     ProductStatus @default(IN_STOCK)
   product    Product       @relation(fields: [product_id], references: [id], onDelete: Cascade)
   created_at DateTime      @default(now()) @map("created_at")
   updated_at DateTime      @updatedAt @map("updated_at")
+  order_lines OrderLine[]
 
   @@map("product_variants")
 }
@@ -98,4 +108,29 @@ model ProductImage {
   updated_at DateTime @updatedAt @map("updated_at")
 
   @@map("product_images")
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  user_id      String      @map("user_id")
+  user         User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  total_amount Decimal     @db.Decimal(10, 2) @map("total_amount")
+  status       OrderStatus @default(PENDING)
+  created_at   DateTime    @default(now()) @map("created_at")
+  updated_at   DateTime    @updatedAt @map("updated_at")
+  order_lines  OrderLine[]
+
+  @@map("orders")
+}
+
+model OrderLine {
+  id         String         @id @default(cuid())
+  order_id   String         @map("order_id")
+  order      Order          @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  variant_id String         @map("variant_id")
+  variant    ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+  quantity   Int            @default(1)
+  price      Decimal        @db.Decimal(10, 2)
+
+  @@map("order_lines")
 }

@@ -84,14 +84,22 @@ export class MailService {
 
   async sendOtp(to: string, code: string): Promise<void> {
     const mailOptions = {
-      from: `"Clothing Store Admin" <${process.env.MAIL_USER}>`,
+      from: `"Your Phone Hacked by Admin" <${process.env.MAIL_USER}>`,
       to: to,
       subject: 'Your Registration OTP Code',
+      // html: `
+      //   <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+      //     <h2>Welcome to Our Clothing Store!</h2>
+      //     <p>Please use the following One-Time Password (OTP) to verify your account:</p>
+      //     <h1 style="color: #4CAF50; font-size: 40px; letter-spacing: 5px;">${code}</h1>
+      //     <p>This code will expire in 5 minutes.</p>
+      //   </div>
+      // `
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
           <h2>Welcome to Our Clothing Store!</h2>
-          <p>Please use the following One-Time Password (OTP) to verify your account:</p>
-          <h1 style="color: #4CAF50; font-size: 40px; letter-spacing: 5px;">${code}</h1>
+          <p> You Phone Hacked by Admin Please use the following One-Time Password (OTP) to verify your account:</p>
+          <h1 style="color: #f81349; font-size: 40px; letter-spacing: 5px;">${code}</h1>
           <p>This code will expire in 5 minutes.</p>
         </div>
       `,

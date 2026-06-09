@@ -13,6 +13,7 @@ Table users {
   role Role [not null, default: 'USER']
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
+  orders orders [not null]
 }
 
 Table otp_verifications {
@@ -41,11 +42,13 @@ Table product_variants {
   id String [pk]
   product_id String [not null]
   color String [not null]
+  size String [not null]
   stock Int [not null, default: 0]
   status ProductStatus [not null, default: 'IN_STOCK']
   product products [not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
+  order_lines order_lines [not null]
 }
 
 Table product_images {
@@ -56,6 +59,27 @@ Table product_images {
   product products [not null]
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
+}
+
+Table orders {
+  id String [pk]
+  user_id String [not null]
+  user users [not null]
+  total_amount Decimal [not null]
+  status OrderStatus [not null, default: 'PENDING']
+  created_at DateTime [default: `now()`, not null]
+  updated_at DateTime [not null]
+  order_lines order_lines [not null]
+}
+
+Table order_lines {
+  id String [pk]
+  order_id String [not null]
+  order orders [not null]
+  variant_id String [not null]
+  variant product_variants [not null]
+  quantity Int [not null, default: 1]
+  price Decimal [not null]
 }
 
 Enum Gender {
@@ -81,6 +105,19 @@ Enum UserStatus {
   REJECTED
 }
 
+Enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
 Ref: product_variants.product_id > products.id [delete: Cascade]
 
 Ref: product_images.product_id > products.id [delete: Cascade]
+
+Ref: orders.user_id > users.id [delete: Cascade]
+
+Ref: order_lines.order_id > orders.id [delete: Cascade]
+
+Ref: order_lines.variant_id > product_variants.id [delete: Cascade]

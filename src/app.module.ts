@@ -8,9 +8,17 @@ import { AuthModule } from './core/auth/auth.module';
 import { ProductModule } from './core/product/product.module';
 import { RequestMiddleware } from '@middlewares/request.middleware';
 import { AdminModule } from './core/admin/admin.module';
+import { OrderModule } from './core/order/order.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, AuthModule,ProductModule,AdminModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+     PrismaModule,
+      AuthModule,
+      ProductModule,
+      AdminModule,
+      OrderModule,
+    ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
