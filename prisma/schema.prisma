@@ -7,8 +7,12 @@ generator dbml {
   provider = "prisma-dbml-generator"
 }
 
+// datasource db {
+//   provider = "postgresql"
+// }
+
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 enum Gender {
