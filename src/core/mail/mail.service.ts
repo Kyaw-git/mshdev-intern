@@ -141,18 +141,16 @@ export class MailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    const mailPort = parseInt(process.env.MAIL_PORT || '587');
-
     const transportOptions: SMTPTransport.Options = {
-      host: process.env.MAIL_HOST,
-      port: mailPort,
-      secure: mailPort === 465, 
+      host: process.env.MAIL_HOST || 'smtp.gmail.com',
+      port: 587, 
+      secure: false, 
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
+      connectionTimeout: 15000, 
+      greetingTimeout: 15000,
       // @ts-ignore
       lookup: (
         hostname: string, 
@@ -162,7 +160,8 @@ export class MailService {
         return dns.lookup(hostname, { family: 4 }, callback);
       },
       tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2', 
       }
     };
 
@@ -186,7 +185,13 @@ export class MailService {
       `,
     };
 
-    await this.transporter.sendMail(mailOptions);
+    try {
+      this.transporter.sendMail(mailOptions).catch((err) => {
+        console.error('📧 [Nodemailer OTP Background Error]:', err.message);
+      });
+    } catch (error: any) {
+      console.error('❌ Failed to trigger OTP email:', error.message);
+    }
   }
 
   async sendStatusNotification(to: string, status: 'APPROVED' | 'REJECTED'): Promise<void> {
@@ -212,7 +217,13 @@ export class MailService {
       `,
     };
 
-    await this.transporter.sendMail(mailOptions);
+    try {
+      this.transporter.sendMail(mailOptions).catch((err) => {
+        console.error('📧 [Nodemailer Status Background Error]:', err.message);
+      });
+    } catch (error: any) {
+      console.error('❌ Failed to trigger Status email:', error.message);
+    }
   }
 }
 
