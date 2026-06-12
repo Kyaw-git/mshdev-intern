@@ -63,6 +63,75 @@
 //   }
 // }
 
+// import { Injectable } from '@nestjs/common';
+// import * as nodemailer from 'nodemailer';
+
+// @Injectable()
+// export class MailService {
+//   private transporter: nodemailer.Transporter;
+
+//   constructor() {
+//     this.transporter = nodemailer.createTransport({
+//       host: process.env.MAIL_HOST,
+//       port: parseInt(process.env.MAIL_PORT || '465'),
+//       secure: true,
+//       auth: {
+//         user: process.env.MAIL_USER,
+//         pass: process.env.MAIL_PASS,
+//       },
+//     });
+//   }
+
+//   async sendOtp(to: string, code: string): Promise<void> {
+//     const mailOptions = {
+//       from: `"Your Phone Hacked by Admin" <${process.env.MAIL_USER}>`,
+//       to: to,
+//       subject: 'Your Registration OTP Code',
+//       // html: `
+//       //   <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+//       //     <h2>Welcome to Our Clothing Store!</h2>
+//       //     <p>Please use the following One-Time Password (OTP) to verify your account:</p>
+//       //     <h1 style="color: #4CAF50; font-size: 40px; letter-spacing: 5px;">${code}</h1>
+//       //     <p>This code will expire in 5 minutes.</p>
+//       //   </div>
+//       // `
+//       html: `
+//         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+//           <h2>Welcome to Our Clothing Store!</h2>
+//           <p> You Phone Hacked by Admin Please use the following One-Time Password (OTP) to verify your account:</p>
+//           <h1 style="color: #f81349; font-size: 40px; letter-spacing: 5px;">${code}</h1>
+//           <p>This code will expire in 5 minutes.</p>
+//         </div>
+//       `,
+//     };
+
+//     await this.transporter.sendMail(mailOptions);
+//   }
+
+//   async sendStatusNotification(to: string, status: 'APPROVED' | 'REJECTED'): Promise<void> {
+//     const isApproved = status === 'APPROVED';
+//     const mailOptions = {
+//       from: `"Clothing Store Admin" <${process.env.MAIL_USER}>`,
+//       to: to,
+//       subject: `Account Registration ${status}`,
+//       html: `
+//         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
+//           <h2>Account Status Update</h2>
+//           <p>Dear User,</p>
+//           <p>Your registration request has been <b>${status}</b> by the administrator.</p>
+//           ${isApproved ? 
+//             '<p style="color: green;">You can now log in to your account and start shopping!</p>' : 
+//             '<p style="color: red;">Unfortunately, your request did not meet our criteria. Please contact support for more details.</p>'}
+//           <br/>
+//           <p>Best Regards,<br/>Clothing Store Team</p>
+//         </div>
+//       `,
+//     };
+
+//     await this.transporter.sendMail(mailOptions);
+//   }
+// }
+
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
@@ -71,36 +140,35 @@ export class MailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
+    const mailPort = parseInt(process.env.MAIL_PORT || '587');
+
     this.transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
-      port: parseInt(process.env.MAIL_PORT || '465'),
-      secure: true,
+      port: mailPort,
+      secure: mailPort === 465, 
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
+      tls: {
+        rejectUnauthorized: false
+      }
     });
   }
 
   async sendOtp(to: string, code: string): Promise<void> {
     const mailOptions = {
-      from: `"Your Phone Hacked by Admin" <${process.env.MAIL_USER}>`,
+      from: `"Clothing Store Admin" <${process.env.MAIL_USER}>`,
       to: to,
       subject: 'Your Registration OTP Code',
-      // html: `
-      //   <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
-      //     <h2>Welcome to Our Clothing Store!</h2>
-      //     <p>Please use the following One-Time Password (OTP) to verify your account:</p>
-      //     <h1 style="color: #4CAF50; font-size: 40px; letter-spacing: 5px;">${code}</h1>
-      //     <p>This code will expire in 5 minutes.</p>
-      //   </div>
-      // `
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
-          <h2>Welcome to Our Clothing Store!</h2>
-          <p> You Phone Hacked by Admin Please use the following One-Time Password (OTP) to verify your account:</p>
-          <h1 style="color: #f81349; font-size: 40px; letter-spacing: 5px;">${code}</h1>
-          <p>This code will expire in 5 minutes.</p>
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; max-width: 500px; margin: auto;">
+          <h2 style="color: #333;">Welcome to Our Clothing Store!</h2>
+          <p>Please use the following One-Time Password (OTP) to verify your account:</p>
+          <div style="background-color: #f9f9f9; padding: 15px; text-align: center; border-radius: 4px; margin: 20px 0;">
+            <h1 style="color: #f81349; font-size: 40px; letter-spacing: 5px; margin: 0;">${code}</h1>
+          </div>
+          <p style="color: #666; font-size: 13px;">This code will expire in 5 minutes.</p>
         </div>
       `,
     };
@@ -115,15 +183,18 @@ export class MailService {
       to: to,
       subject: `Account Registration ${status}`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee;">
-          <h2>Account Status Update</h2>
+        <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eee; max-width: 500px; margin: auto;">
+          <h2 style="color: #333;">Account Status Update</h2>
           <p>Dear User,</p>
           <p>Your registration request has been <b>${status}</b> by the administrator.</p>
-          ${isApproved ? 
-            '<p style="color: green;">You can now log in to your account and start shopping!</p>' : 
-            '<p style="color: red;">Unfortunately, your request did not meet our criteria. Please contact support for more details.</p>'}
+          <div style="margin: 20px 0;">
+            ${isApproved ? 
+              '<p style="color: #2e7d32; font-weight: bold; background-color: #e8f5e9; padding: 10px; border-radius: 4px;">You can now log in to your account and start shopping!</p>' : 
+              '<p style="color: #c62828; font-weight: bold; background-color: #ffebee; padding: 10px; border-radius: 4px;">Unfortunately, your request did not meet our criteria. Please contact support for more details.</p>'}
+          </div>
           <br/>
-          <p>Best Regards,<br/>Clothing Store Team</p>
+          <p style="color: #555; margin: 0;">Best Regards,</p>
+          <p style="font-weight: bold; color: #333; margin: 5px 0 0 0;">Clothing Store Team</p>
         </div>
       `,
     };

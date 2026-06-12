@@ -12,7 +12,6 @@ import { defineConfig } from '@prisma/config';
 
 export default defineConfig({
   datasource: {
-    // Build/Migration အဆင့်အတွက် DIRECT_URL ကို သုံးပါမည်
     url: process.env.DIRECT_URL || process.env.DATABASE_URL,
   },
 });
