@@ -131,9 +131,10 @@
 //     await this.transporter.sendMail(mailOptions);
 //   }
 // }
-
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
+import * as dns from 'dns';
 
 @Injectable()
 export class MailService {
@@ -142,7 +143,7 @@ export class MailService {
   constructor() {
     const mailPort = parseInt(process.env.MAIL_PORT || '587');
 
-    this.transporter = nodemailer.createTransport({
+    const transportOptions: SMTPTransport.Options = {
       host: process.env.MAIL_HOST,
       port: mailPort,
       secure: mailPort === 465, 
@@ -150,10 +151,22 @@ export class MailService {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      // @ts-ignore
+      lookup: (
+        hostname: string, 
+        options: dns.LookupOneOptions, 
+        callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void
+      ) => {
+        return dns.lookup(hostname, { family: 4 }, callback);
+      },
       tls: {
         rejectUnauthorized: false
       }
-    });
+    };
+
+    this.transporter = nodemailer.createTransport(transportOptions);
   }
 
   async sendOtp(to: string, code: string): Promise<void> {
