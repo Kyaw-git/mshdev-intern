@@ -20,6 +20,7 @@ import { NotificationModule } from './core/notification/notification.module';
       AdminModule,
       OrderModule,
       NotificationModule,
+      
     ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
