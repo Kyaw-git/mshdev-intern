@@ -9,6 +9,7 @@ import { ProductModule } from './core/product/product.module';
 import { RequestMiddleware } from '@middlewares/request.middleware';
 import { AdminModule } from './core/admin/admin.module';
 import { OrderModule } from './core/order/order.module';
+import { NotificationModule } from './core/notification/notification.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { OrderModule } from './core/order/order.module';
       ProductModule,
       AdminModule,
       OrderModule,
+      NotificationModule,
     ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

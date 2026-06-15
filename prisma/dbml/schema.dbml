@@ -82,6 +82,14 @@ Table order_lines {
   price Decimal [not null]
 }
 
+Table Notification {
+  id String [pk]
+  title String [not null]
+  message String [not null]
+  isRead Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+}
+
 Enum Gender {
   MALE
   FEMALE

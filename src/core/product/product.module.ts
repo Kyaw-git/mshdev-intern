@@ -8,9 +8,10 @@ import { FindAllProductsUseCase } from './application/use-case/find-all-products
 import { DeleteProductUseCase } from './application/use-case/delete-product.usecase';
 import { UpdateProductUseCase } from './application/use-case/update-product.usecase';
 import { FindByIdProductUseCase } from './application/use-case/find-by-id-product.usecase';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NotificationModule],
   controllers: [ProductController],
   providers: [
     CreateProductUseCase,
@@ -18,6 +19,7 @@ import { FindByIdProductUseCase } from './application/use-case/find-by-id-produc
     DeleteProductUseCase,
     UpdateProductUseCase,
     FindByIdProductUseCase,
+    NotificationModule,
     {
       provide: ProductRepository,
       useClass: PrismaProductRepository,
