@@ -7,10 +7,6 @@ generator dbml {
   provider = "prisma-dbml-generator"
 }
 
-// datasource db {
-//   provider = "postgresql"
-// }
-
 datasource db {
   provider  = "postgresql"
 }
@@ -57,6 +53,7 @@ model User {
   created_at DateTime @default(now()) @map("created_at")
   updated_at DateTime @updatedAt @map("updated_at")
   orders     Order[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -140,9 +137,14 @@ model OrderLine {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  title     String
-  message   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  user_id    String   @map("user_id")
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order_id   String?  @map("order_id")
+  title      String
+  message    String
+  is_read    Boolean  @default(false) @map("is_read")
+  created_at DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
 }

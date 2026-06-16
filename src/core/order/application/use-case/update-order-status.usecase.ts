@@ -2,6 +2,7 @@ import { Injectable, Inject, NotFoundException, BadRequestException } from '@nes
 import { OrderRepository } from '../../domain/repositories/order.repository';
 import { UpdateOrderStatusDto } from '../dtos/update-order-status.dto';
 import { PrismaService } from '../../../../prisma/prisma.service';
+import { NotificationService } from '../../../notification/notification.service';
 
 @Injectable()
 export class UpdateOrderStatusUseCase {
@@ -9,21 +10,19 @@ export class UpdateOrderStatusUseCase {
     @Inject(OrderRepository)
     private readonly orderRepository: OrderRepository,
     private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async execute(orderId: string, dto: UpdateOrderStatusDto) {
-    // 1. Check if order exists
     const order = await this.orderRepository.findById(orderId);
     if (!order) {
       throw new NotFoundException(`Order with ID ${orderId} not found`);
     }
 
-    // Prevent modification if order is already COMPLETED or REJECTED
     if (order.status === 'COMPLETED' || order.status === 'REJECTED') {
       throw new BadRequestException(`Cannot change status. Order is already ${order.status}`);
     }
 
-    // 2. Rollback stock if order is REJECTED
     if (dto.status === 'REJECTED') {
       const orderLines = await this.prisma.orderLine.findMany({
         where: { order_id: orderId },
@@ -38,20 +37,34 @@ export class UpdateOrderStatusUseCase {
         });
       }
     }
-
-    // 3. Update order status via repository
     const updatedOrder = await this.orderRepository.update(orderId, {
       status: dto.status,
     });
 
-    // 4. Format notification message for mobile client
+    let notiTitle = 'Order Update';
     let clientMessage = 'Your order has been received.';
+
     if (dto.status === 'APPROVED') {
-      clientMessage = 'Your order has been approved. The items will be shipped shortly.';
+      notiTitle = 'Order Approved! 🎉';
+      clientMessage = `Your order #${orderId.slice(-6)} has been approved. The items will be shipped to your address shortly.`;
     } else if (dto.status === 'REJECTED') {
-      clientMessage = 'We are sorry, your order has been rejected due to insufficient stock.';
+      notiTitle = 'Order Rejected';
+      clientMessage = `We are sorry, your order #${orderId.slice(-6)} has been rejected due to insufficient stock or availability.`;
     } else if (dto.status === 'COMPLETED') {
-      clientMessage = 'Your order has been successfully completed. Thank you for shopping with us!';
+      notiTitle = 'Order Completed!';
+      clientMessage = `Your order #${orderId.slice(-6)} has been successfully completed. Thank you for shopping with us!`;
+    }
+
+    try {
+      await this.notificationService.createNotification(
+  order.user_id,
+  orderId,
+  notiTitle,
+  clientMessage,
+);
+      console.log(`[Notification DB Saved]: For User ${order.user_id}`);
+    } catch (notiError: any) {
+      console.error(' Failed to save notification to DB:', notiError.message);
     }
 
     return {

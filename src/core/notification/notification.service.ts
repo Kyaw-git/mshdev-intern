@@ -1,36 +1,47 @@
-import { Injectable } from '@nestjs/common';
-import { NotificationGateway } from './notification.gateway';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class NotificationService {
-  constructor(
-    private prisma: PrismaService,
-    private notiGateway: NotificationGateway,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
 
-  async createNotification(title: string, message: string) {
-
-    const noti = await this.prisma.notification.create({
-      data: { title, message },
-    });
-
-    this.notiGateway.sendNotification(noti);
-
-    return noti;
-  }
-
-  async getNotifications() {
-    return this.prisma.notification.findMany({
-      orderBy: { createdAt: 'desc' },
+  async createNotification(userId: string, orderId: string | null, title: string, message: string) {
+    return await this.prisma.notification.create({
+      data: {
+        user_id: userId,
+        order_id: orderId,
+        title: title,
+        message: message,
+      },
     });
   }
 
-  async markAsRead(id: string) {
-    return this.prisma.notification.update({
-      where: { id },
-      data: { isRead: true },
+  async getUserNotifications(userId: string) {
+    return await this.prisma.notification.findMany({
+      where: { user_id: userId },
+      orderBy: { created_at: 'desc' }, 
+    });
+  }
+
+  
+  async markAsRead(notificationId: string) {
+    const noti = await this.prisma.notification.findUnique({
+      where: { id: notificationId },
+    });
+    if (!noti) throw new NotFoundException('Notification not found');
+
+    return await this.prisma.notification.update({
+      where: { id: notificationId },
+      data: { is_read: true },
+    });
+  }
+
+  
+  async markAllAsRead(userId: string) {
+    return await this.prisma.notification.updateMany({
+      where: { user_id: userId, is_read: false },
+      data: { is_read: true },
     });
   }
 }

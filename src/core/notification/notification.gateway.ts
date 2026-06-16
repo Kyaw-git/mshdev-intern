@@ -7,11 +7,11 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
   server!: Server;
 
   handleConnection(client: Socket) {
-    console.log(`📱 Mobile/Web Connected to Noti: ${client.id}`);
+    console.log(`Mobile/Web Connected to Noti: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`❌ Disconnected from Noti: ${client.id}`);
+    console.log(`Disconnected from Noti: ${client.id}`);
   }
 
 

@@ -14,6 +14,7 @@ Table users {
   created_at DateTime [default: `now()`, not null]
   updated_at DateTime [not null]
   orders orders [not null]
+  notifications notifications [not null]
 }
 
 Table otp_verifications {
@@ -82,12 +83,15 @@ Table order_lines {
   price Decimal [not null]
 }
 
-Table Notification {
+Table notifications {
   id String [pk]
+  user_id String [not null]
+  user users [not null]
+  order_id String
   title String [not null]
   message String [not null]
-  isRead Boolean [not null, default: false]
-  createdAt DateTime [default: `now()`, not null]
+  is_read Boolean [not null, default: false]
+  created_at DateTime [default: `now()`, not null]
 }
 
 Enum Gender {
@@ -129,3 +133,5 @@ Ref: orders.user_id > users.id [delete: Cascade]
 Ref: order_lines.order_id > orders.id [delete: Cascade]
 
 Ref: order_lines.variant_id > product_variants.id [delete: Cascade]
+
+Ref: notifications.user_id > users.id [delete: Cascade]
