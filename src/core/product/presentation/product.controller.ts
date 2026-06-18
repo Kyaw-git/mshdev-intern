@@ -17,7 +17,6 @@ import { DeleteProductUseCase } from '../application/use-case/delete-product.use
 import { UpdateProductUseCase } from '../application/use-case/update-product.usecase';
 import { UpdateProductDto } from '../application/dtos/update-product.dto';
 import { FindByIdProductUseCase } from '../application/use-case/find-by-id-product.usecase';
-import { NotificationService } from '../../notification/notification.service';
 
 @ApiTags('Products')
 @Controller('products')
@@ -28,7 +27,6 @@ export class ProductController {
     private readonly deleteProductUseCase: DeleteProductUseCase,
     private readonly updateProductUseCase: UpdateProductUseCase,
     private readonly findByIdProductUseCase: FindByIdProductUseCase,
-    private readonly notiService: NotificationService,
   ) {}
 
   @Post()
@@ -36,24 +34,8 @@ export class ProductController {
   @ApiOperation({ summary: 'Create a new product catalog' })
   @ApiResponse({ status: 201, description: 'Product created successfully.' })
   async create(@Body() dto: CreateProductDto) {
-    const newProduct = await this.createProductUseCase.execute(dto);
-
-    const fallbackUserId = 'ADMIN_OR_TEST_USER_ID';
-
-    try {
-      const createdProductId = newProduct?.product_id || 'Catalog';
-
-      await this.notiService.createNotification(
-        fallbackUserId,
-        null,
-        '✨ New Product Arrived!',
-        `A new item has been added to the store (ID: ${createdProductId}). Check it out now!`,
-      );
-    } catch (err: any) {
-      console.error('Notification failed in product creation:', err.message);
-    }
-
-    return newProduct;
+    // 🎯 Product အသစ်ဆောက်ရင်လည်း Noti မလိုလို့ ကုဒ် ဖြုတ်ပစ်လိုက်ပြီ သားကြီး
+    return this.createProductUseCase.execute(dto);
   }
 
   @Get()
@@ -79,22 +61,7 @@ export class ProductController {
   @ApiResponse({ status: 200, description: 'Product updated successfully.' })
   @ApiResponse({ status: 404, description: 'Product not found.' })
   async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    const updatedProduct = await this.updateProductUseCase.execute(id, dto);
-
-    const fallbackUserId = 'ADMIN_OR_TEST_USER_ID';
-
-    try {
-      await this.notiService.createNotification(
-        fallbackUserId,
-        null,
-        '🛍️ Product Updated!',
-        `The details for product ID #${id.slice(-6)} have been updated successfully.`,
-      );
-    } catch (err: any) {
-      console.error('Notification failed in product updation:', err.message);
-    }
-
-    return updatedProduct;
+    return this.updateProductUseCase.execute(id, dto);
   }
 
   @Get(':id')

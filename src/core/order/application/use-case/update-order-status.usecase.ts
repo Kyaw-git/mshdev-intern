@@ -37,6 +37,7 @@ export class UpdateOrderStatusUseCase {
         });
       }
     }
+
     const updatedOrder = await this.orderRepository.update(orderId, {
       status: dto.status,
     });
@@ -55,16 +56,24 @@ export class UpdateOrderStatusUseCase {
       clientMessage = `Your order #${orderId.slice(-6)} has been successfully completed. Thank you for shopping with us!`;
     }
 
+    // 🎯 [ဘယ်လိုမှ မမှားနိုင်တော့မယ့် စိတ်ချရဆုံး Noti ပို့တဲ့အကွက်]
     try {
-      await this.notificationService.createNotification(
-  order.user_id,
-  orderId,
-  notiTitle,
-  clientMessage,
-);
-      console.log(`[Notification DB Saved]: For User ${order.user_id}`);
+      // Domain Entity ရဲ့ အခေါ်အဝေါ် ကွဲလွဲမှုကို ကာကွယ်ဖို့ (order.user_id သို့မဟုတ် order.userId) တစ်ခုခုကနေ ဇွတ် ဆွဲထုတ်မယ်
+      const targetUserId = (order as any).user_id || (order as any).userId;
+
+      if (!targetUserId) {
+        console.error(`[Notification Skipped]: Could not find user id in order object`);
+      } else {
+        await this.notificationService.createNotification(
+          targetUserId,
+          orderId,
+          notiTitle,
+          clientMessage,
+        );
+        console.log(`[Notification DB Saved]: For User ${targetUserId}`);
+      }
     } catch (notiError: any) {
-      console.error(' Failed to save notification to DB:', notiError.message);
+      console.error('⚠️ Failed to save notification to DB:', notiError.message);
     }
 
     return {

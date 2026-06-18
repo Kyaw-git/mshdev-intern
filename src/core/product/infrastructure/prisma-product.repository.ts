@@ -103,9 +103,14 @@ export class PrismaProductRepository implements ProductRepository {
     });
   }
 
-  async update(id: string, data: any, tx?: Prisma.TransactionClient): Promise<any> {
+  async update(
+    id: string,
+    data: any,
+    tx?: Prisma.TransactionClient,
+  ): Promise<any> {
     const client = tx || this.prisma;
-    return await (client as any).product.update({
+
+    const updatedProduct = await (client as any).product.update({
       where: { id },
       data: {
         name: data.name,
@@ -113,10 +118,28 @@ export class PrismaProductRepository implements ProductRepository {
         category: data.category,
         brand: data.brand,
         gender: data.gender,
-        price: data.price,
+        price:
+          data.price !== undefined ? new Prisma.Decimal(data.price) : undefined,
       },
     });
-  }
 
-  
+    if (data.variants && Array.isArray(data.variants)) {
+      for (const variant of data.variants) {
+        if (variant.id) {
+          await (client as any).productVariant.update({
+            where: { id: variant.id },
+            data: {
+              size: variant.size,
+              color: variant.color,
+              stock:
+                variant.stock !== undefined ? Number(variant.stock) : undefined,
+              status: variant.status,
+            },
+          });
+        }
+      }
+    }
+
+    return updatedProduct;
+  }
 }
