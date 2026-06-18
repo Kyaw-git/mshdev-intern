@@ -65,7 +65,7 @@ export class RegisterUseCase {
         console.error('📧 [Resend OTP Background Error]:', err.message);
       });
     } catch (mailError: any) {
-      console.error('❌ Failed to trigger Resend OTP email process:', mailError.message);
+      console.error('Failed to trigger Resend OTP email process:', mailError.message);
     }
 
     return {

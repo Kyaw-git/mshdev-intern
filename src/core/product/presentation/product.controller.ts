@@ -34,7 +34,6 @@ export class ProductController {
   @ApiOperation({ summary: 'Create a new product catalog' })
   @ApiResponse({ status: 201, description: 'Product created successfully.' })
   async create(@Body() dto: CreateProductDto) {
-    // 🎯 Product အသစ်ဆောက်ရင်လည်း Noti မလိုလို့ ကုဒ် ဖြုတ်ပစ်လိုက်ပြီ သားကြီး
     return this.createProductUseCase.execute(dto);
   }
 

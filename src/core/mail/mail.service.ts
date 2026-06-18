@@ -54,12 +54,12 @@ export class MailService {
 
     try {
       this.transporter.sendMail(mailOptions).then((info) => {
-        console.log('📧 [Nodemailer OTP Sent Success]:', info.messageId);
+        console.log('[Nodemailer OTP Sent Success]:', info.messageId);
       }).catch((err) => {
-        console.error('📧 [Nodemailer OTP Background Error]:', err.message);
+        console.error('[Nodemailer OTP Background Error]:', err.message);
       });
     } catch (error: any) {
-      console.error('❌ Failed to trigger OTP email process:', error.message);
+      console.error('Failed to trigger OTP email process:', error.message);
     }
   }
 
