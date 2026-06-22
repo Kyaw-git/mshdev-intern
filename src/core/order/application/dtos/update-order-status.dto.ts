@@ -1,5 +1,5 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum OrderStatusEnum {
   APPROVED = 'APPROVED',
@@ -8,14 +8,22 @@ export enum OrderStatusEnum {
 }
 
 export class UpdateOrderStatusDto {
-  @ApiProperty({ 
-    enum: OrderStatusEnum, 
+  @ApiProperty({
+    enum: OrderStatusEnum,
     description: 'The new status of the order',
-    example: 'APPROVED' 
+    example: 'APPROVED',
   })
   @IsEnum(OrderStatusEnum, {
     message: 'Status must be APPROVED, REJECTED, or COMPLETED',
   })
   @IsNotEmpty()
   status!: OrderStatusEnum;
+
+  @ApiPropertyOptional({
+    example: 'Your order has been approved and is being processed.',
+    description: 'Custom Notification Message  by admin (optional)',
+  })
+  @IsString()
+  @IsOptional()
+  message?: string;
 }
